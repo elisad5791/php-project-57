@@ -1,0 +1,23 @@
+<x-app-layout>
+    <div>
+        <h1 class="text-4xl my-4">Изменить задачу</h1>
+        {{ Form::model($task, ['route' => ['tasks.update', $task], 'method' => 'PATCH']) }}
+            {{ Form::label('name', 'Название', ['class' => 'font-bold']) }}<br>
+            {{ Form::text('name', $task->name) }}<br><br>
+
+            {{ Form::label('description', 'Краткое описание', ['class' => 'font-bold']) }}<br>
+            {{ Form::textarea('description', $task->description) }}<br><br>
+
+            {{ Form::label('status_id', 'Статус', ['class' => 'font-bold']) }}<br>
+            {{ Form::number('status_id', $task->status_id) }}<br><br>
+
+            {{ Form::label('created_by_id', 'Создатель', ['class' => 'font-bold']) }}<br>
+            {{ Form::number('created_by_id', $task->created_by_id) }}<br><br>
+
+            {{ Form::label('assigned_to_id', 'Исполнитель', ['class' => 'font-bold']) }}<br>
+            {{ Form::number('assigned_to_id', $task->assigned_to_id) }}<br><br>
+            
+            {{ Form::submit('Сохранить', ['class' => 'inline-block rounded-lg bg-indigo-600 mt-6 px-4 py-1.5 text-base font-semibold leading-7 text-white shadow-sm ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700']) }}
+        {{ Form::close() }}
+    </div>
+</x-app-layout>
