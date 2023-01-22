@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Mark;
+use App\Models\Status;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -15,7 +19,38 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::all()->sortBy('id');
-        return view('task.index', compact('tasks'));
+        $statuses = Status::all()->sortBy('id')->mapWithKeys(function ($item) {
+            return [$item['id'] => $item['name']];
+        });
+        $creators = User::all()->sortBy('id')->mapWithKeys(function ($item) {
+            return [$item['id'] => $item['name']];
+        });
+        $executors = User::all()->sortBy('id')->mapWithKeys(function ($item) {
+            return [$item['id'] => $item['name']];
+        });
+        $user = Auth::user();
+        $isLoggedIn = Auth::check();
+        return view('task.index', compact('tasks', 'statuses', 'creators', 'executors', 'isLoggedIn', 'user'));
+    }
+
+    public function filter(Request $request)
+    {
+        $tasks = Task::all()->sortBy('id');
+        $statuses = Status::all()->sortBy('id')->mapWithKeys(function ($item) {
+            return [$item['id'] => $item['name']];
+        });
+        $creators = User::all()->sortBy('id')->mapWithKeys(function ($item) {
+            return [$item['id'] => $item['name']];
+        });
+        $executors = User::all()->sortBy('id')->mapWithKeys(function ($item) {
+            return [$item['id'] => $item['name']];
+        });
+        $user = Auth::user();
+        $isLoggedIn = Auth::check();
+        $status = $request->input('status');
+        $creator = $request->input('creator');
+        $executor = $request->input('executor');
+        return view('task.index', compact('tasks', 'statuses', 'creators', 'executors', 'isLoggedIn', 'user'));
     }
 
     /**
@@ -26,7 +61,9 @@ class TaskController extends Controller
     public function create()
     {
         $task = new Task();
-        return view('task.create', compact('task'));
+        $this->authorize('create', $task);
+        $marks = Mark::all();
+        return view('task.create', compact('task', 'marks'));
     }
 
     /**
@@ -46,7 +83,10 @@ class TaskController extends Controller
         ]);
         $task= new Task();
         $task->fill($data);
+        $this->authorize('store', $task);
         $task->save();
+        $task->marks()->sync($request->input('marks'));
+        flash('Задача создана');
         return redirect()->route('tasks.index');
     }
 
@@ -71,7 +111,9 @@ class TaskController extends Controller
     public function edit($id)
     {
         $task = Task::findOrFail($id);
-        return view('task.edit', compact('task'));
+        $this->authorize('edit', $task);
+        $marks = Mark::all();
+        return view('task.edit', compact('task', 'marks'));
     }
 
     /**
@@ -92,7 +134,10 @@ class TaskController extends Controller
             'assigned_to_id' => 'required',
         ]);
         $task->fill($data);
+        $this->authorize('update', $task);
         $task->save();
+        $task->marks()->sync($request->input('marks'));
+        flash('Задача обновлена');
         return redirect()->route('tasks.index');
     }
 
@@ -105,8 +150,13 @@ class TaskController extends Controller
     public function destroy($id)
     {
         $task = Task::find($id);
+        $this->authorize('destroy', $task);
         if ($task) {
-          $task->delete();
+            $task->marks()->detach();
+            $task->delete();
+            flash('Задача удалена');
+        } else {
+            flash('Задача не может быть удалена')->error();
         }
         return redirect()->route('tasks.index');
     }

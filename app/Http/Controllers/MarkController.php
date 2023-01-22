@@ -43,6 +43,7 @@ class MarkController extends Controller
         $mark= new Mark();
         $mark->fill($data);
         $mark->save();
+        flash('Метка создана');
         return redirect()->route('marks.index');
     }
 
@@ -84,6 +85,7 @@ class MarkController extends Controller
         ]);
         $mark->fill($data);
         $mark->save();
+        flash('Метка обновлена');
         return redirect()->route('marks.index');
     }
 
@@ -96,8 +98,11 @@ class MarkController extends Controller
     public function destroy($id)
     {
         $mark = Mark::find($id);
-        if ($mark) {
-          $mark->delete();
+        if ($mark && $mark->tasks->isEmpty()) {
+            $mark->delete();
+            flash('Метка удалена');
+        } else {
+            flash('Метка не может быть удалена')->error();
         }
         return redirect()->route('marks.index');
     }

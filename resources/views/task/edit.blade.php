@@ -6,7 +6,7 @@
             {{ Form::text('name', $task->name) }}<br><br>
 
             {{ Form::label('description', 'Краткое описание', ['class' => 'font-bold']) }}<br>
-            {{ Form::textarea('description', $task->description) }}<br><br>
+            {{ Form::textarea('description', $task->description, ['class' => 'h-24']) }}<br><br>
 
             {{ Form::label('status_id', 'Статус', ['class' => 'font-bold']) }}<br>
             {{ Form::number('status_id', $task->status_id) }}<br><br>
@@ -16,7 +16,14 @@
 
             {{ Form::label('assigned_to_id', 'Исполнитель', ['class' => 'font-bold']) }}<br>
             {{ Form::number('assigned_to_id', $task->assigned_to_id) }}<br><br>
-            
+
+            <p class="font-bold">Метки</p>
+            @foreach ($marks as $mark)
+                {{ Form::checkbox('marks[]', $mark->id, $task->marks->map(fn($item) => $item->name)->contains($mark->name)) }}
+                {{ Form::label('marks[]', $mark->name, ['class' => 'mr-4']) }}
+            @endforeach
+            <br>
+
             {{ Form::submit('Сохранить', ['class' => 'inline-block rounded-lg bg-indigo-600 mt-6 px-4 py-1.5 text-base font-semibold leading-7 text-white shadow-sm ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700']) }}
         {{ Form::close() }}
     </div>

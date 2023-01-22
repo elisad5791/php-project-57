@@ -14,9 +14,15 @@
         </style>
     </head>
     <body>
+        @include('flash::message')
         @include('layouts.navigation')
         <main class="max-w-screen-xl flex items-center justify-between p-4 mx-auto">
             {{ $slot }}
         </main>
+        <script>
+            setTimeout(function() {
+                document.querySelector('div.alert').style.display = 'none';
+            }, 3000);
+        </script>
     </body>
 </html>

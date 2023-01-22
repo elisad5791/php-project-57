@@ -35,4 +35,6 @@ Route::resource('statuses', StatusController::class);
 Route::resource('marks', MarkController::class);
 Route::resource('tasks', TaskController::class);
 
+Route::post('tasks/filter', [TaskController::class, 'filter'])->name('tasks.filter');
+
 require __DIR__.'/auth.php';
